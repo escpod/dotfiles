@@ -1,0 +1,39 @@
+#! /usr/bin/perl -w
+use strict;
+
+my $wminfo  = "";
+my $title   = "";
+my $sysinfo = "";
+my $notif   = "";
+my $notif_t = time;
+my $timeout = 5;
+
+$|++; # autoflush output
+
+while (<>) {
+  chomp $_;
+
+  if    ( $_ =~ /^T/ ) { 
+    $title = length $_ > 1 ? ">>>> ${\(substr $_,1)}" : ""; 
+  }
+
+  elsif ( $_ =~ /^S/ ) { 
+    $notif = "" if (time - $notif_t) > $timeout;
+    $sysinfo = substr $_,1; 
+  }
+
+  elsif ( $_ =~ /^N/ ) {
+    $notif_t = time;
+    $notif = substr $_,1;
+  }
+
+  elsif ( $_ =~ /^W/ ) {
+    $wminfo = "DESKTOPS:";
+    foreach (split(":",substr($_,1))) {
+      $wminfo = "$wminfo %{F#ff0000}${\(substr $_,1)}%{F-}" if $_ =~ /^[OUF]/;
+      $wminfo = "$wminfo ${\(substr $_,1)}" if $_ =~ /^[ou]/;
+    }
+  }
+
+  print "$wminfo $title %{c} $notif %{r} $sysinfo\n";
+}

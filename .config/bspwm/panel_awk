@@ -1,0 +1,14 @@
+#!/usr/bin/awk -f
+
+/^T/ { ( length($0) > 1 ) ? title = ">>>> " substr($0,2) : title = "" }
+/^S/ { sysinfo = substr($0,2) }
+/^W/ {
+  wminfo = "DESKTOPS:"
+  split(substr($0,2),wmarray,":")
+  for ( i in wmarray ) {
+    item = wmarray[i]
+    if ( item ~ /^[OUF]/ ) wminfo = wminfo " %{F#ff0000}" substr(item,2) "%{F-}"
+    if ( item ~ /^[ou]/ )  wminfo = wminfo " " substr(item,2)
+  }
+}
+{ print wminfo " " title "%{r}" sysinfo; fflush(); }
